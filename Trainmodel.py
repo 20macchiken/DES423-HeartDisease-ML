@@ -6,11 +6,26 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 from pycaret.classification import (
     setup, compare_models, tune_model, predict_model, finalize_model, save_model, pull
 )
+from pathlib import Path
+import os
+
+# ---- OUTPUT PATHS (send artifacts into Outputs/TrainModel/...) ----
+base_path = Path(__file__).parent
+out_root  = base_path / "Outputs"
+OUT_DIR   = out_root / "TrainModel"       # folder for this script's outputs
+
+MODELS_DIR  = OUT_DIR / "models"          # For the use only in Trainmodel.py
+METRICS_DIR = OUT_DIR / "metrics"
+PLOTS_DIR   = OUT_DIR / "plots"
+
+for d in [MODELS_DIR, METRICS_DIR, PLOTS_DIR]:
+    d.mkdir(parents=True, exist_ok=True)
+# -------------------------------------------------------------------
 
 # ====== CONFIG ======
 CSV_PATH = "data_clean/heart_all_clean_binary.csv"
 TARGET   = "target"
-SESSION  = 42
+SESSION  = 42  # Random seed for reproducibility for pycaret but can be any integer you like (ปรับได้ตามสะดวก)
 SORT_MET = "F1"   # F1 score metric for medical screening in most cases is preferred
 
 # ====== LOAD DATA ======
@@ -37,13 +52,13 @@ setup(
 # ====== 1) COMPARE MULTIPLE MODELS ======
 top_models = compare_models(n_select=5, sort=SORT_MET)
 lb_compare = pull().copy()  # leaderboard after compare
-lb_compare.to_csv("leaderboard_compare.csv", index=False)
+lb_compare.to_csv(METRICS_DIR / "leaderboard_compare.csv", index=False)
 
 # ====== 2) TUNE THE BEST MODEL ======
 best_base = top_models[0] if isinstance(top_models, list) else top_models
 best_tuned = tune_model(best_base, optimize=SORT_MET, choose_better=True)
 lb_tune = pull().copy()
-lb_tune.to_csv("leaderboard_tune.csv", index=False)
+lb_tune.to_csv(METRICS_DIR / "leaderboard_tune.csv", index=False)
 
 # ====== 3) EVALUATE ON HOLD-OUT ======
 preds = predict_model(best_tuned)   # returns a DataFrame with predictions
@@ -114,7 +129,11 @@ metrics_out = pd.DataFrame([{
     "F1": f1,
     "AUC": auc
 }])
-metrics_out.to_csv("metrics_holdout.csv", index=False)
+
+metrics_out.to_csv(METRICS_DIR / "metrics_holdout.csv", index=False)
+
+# also save hold-out predictions for downstream plotting scripts (feature importance, confusion matrix)
+preds.to_csv(METRICS_DIR / "preds_holdout.csv", index=False)
 
 print("\n=== SUMMARY (Hold-out) ===")
 print("Best model (tuned):", best_tuned)
@@ -125,10 +144,11 @@ print(
 
 # ====== 4) FINALIZE & SAVE MODEL ======
 final_model = finalize_model(best_tuned)       # retrain on full data with tuned params
-save_model(final_model, "best_heart_model")    # -> best_heart_model.pkl
+save_model(final_model, str(MODELS_DIR / "best_heart_model"))  # Generates best_heart_model.pkl in models/
 
 print("\nSaved files:")
-print(" - leaderboard_compare.csv")
-print(" - leaderboard_tune.csv")
-print(" - metrics_holdout.csv")
-print(" - best_heart_model.pkl")
+print(f" - {METRICS_DIR / 'leaderboard_compare.csv'}")
+print(f" - {METRICS_DIR / 'leaderboard_tune.csv'}")
+print(f" - {METRICS_DIR / 'metrics_holdout.csv'}")
+print(f" - {MODELS_DIR  / 'best_heart_model.pkl'}")
+print(f" - {METRICS_DIR / 'preds_holdout.csv'}")
