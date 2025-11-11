@@ -18,4 +18,4 @@ These command will guide you how to install, change python version, and how to r
 
 # Steps to run a file
 
-After all installation done, I advise to run python Trainmode.py first, because it would generate a csv with prediction and metrics which we will use later in `confusionMatrix.py` and `featureImportance.py`
+After all installation done, I advise to run `Trainmode.py` first, because it would generate a csv with prediction and metrics which will be used in `confusionMatrix.py` and `featureImportance.py`
