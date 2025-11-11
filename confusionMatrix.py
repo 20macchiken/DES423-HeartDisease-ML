@@ -32,17 +32,18 @@ target_names = [CLASS_LABELS.get(int(k), str(k)) for k in unique_sorted]
 print(f"\nAccuracy: {acc*100:,.2f}%\n")
 print(classification_report(y_true, y_pred, target_names=target_names, digits=2))
 
-# also show raw confusion matrix array (like your example)
+# raw confusion matrix array printed in the console / terminal
 conf_matrix = confusion_matrix(y_true, y_pred, labels=unique_sorted)
 print(conf_matrix)
 
-# (optional) save the text report to a file for your teammate/report
+# Classification report + confusion matrix saved to a text file
+
 with open("classification_report.txt", "w", encoding="utf-8") as f:
     f.write(f"Accuracy: {acc*100:,.2f}%\n\n")
     f.write(classification_report(y_true, y_pred, target_names=target_names, digits=2))
     f.write("\n" + np.array2string(conf_matrix))
 
-# 4) plot (unchanged from your code)
+# 4) plot the confusion matrix
 disp = ConfusionMatrixDisplay(conf_matrix, display_labels=target_names)
 disp.plot(values_format="d")
 plt.title("Confusion Matrix (Hold-out)")

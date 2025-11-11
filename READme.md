@@ -15,3 +15,7 @@ These command will guide you how to install, change python version, and how to r
 - .\.venv311\Scripts\activate // Activate virtual environment
 - pip install -r requirements.txt // Install dependencies and packages
 - python {filename}.py // To run the python file
+
+# Steps to run a file
+
+After all installation done, I advise to run python Trainmode.py first, because it would generate a csv with prediction and metrics which we will use later in `confusionMatrix.py` and `featureImportance.py`

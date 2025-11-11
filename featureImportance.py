@@ -5,10 +5,10 @@ import matplotlib.pyplot as plt
 from sklearn.inspection import permutation_importance
 from pycaret.classification import load_model
 
-# 1) load finalized pipeline (no .pkl suffix)
+# 1) load finalized pipeline from best_heart_model.pkl
 best = load_model("best_heart_model")
 
-# 2) use preds_holdout.csv to get the original features & labels
+# 2) use preds_holdout.csv to get the original features & labels (Which means that you must have saved it earlier or run trainmodel first.)
 df = pd.read_csv("preds_holdout.csv")
 
 target_col = next(c for c in ["Label","label","Target","target"] if c in df.columns)
@@ -23,11 +23,11 @@ imp = pd.DataFrame({
     "feature": X.columns,
     "importance_mean": res.importances_mean,
     "importance_std":  res.importances_std
-}).sort_values("importance_mean", ascending=True)  # ascending for a nice horizontal bar
+}).sort_values("importance_mean", ascending=True)  # ascending for a horizontal bar (easier to read in this way for me personally)
 
 imp.to_csv("feature_importance_permutation.csv", index=False)
 
-# 4) plot
+# 4) plot the feature importance
 plt.figure(figsize=(8, max(4, len(imp)*0.3)))
 plt.barh(imp["feature"], imp["importance_mean"])
 plt.xlabel("Permutation importance (mean ΔF1)")
