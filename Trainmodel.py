@@ -1,6 +1,5 @@
-# Trainmodel.py
 # Trains & compares multiple models with PyCaret (classification),
-# tunes the best, evaluates on hold-out, and saves metrics + model.
+# tunes the best, evaluates on hold-out, and saves metrics + model into csv files (shown results).
 
 import pandas as pd
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score
@@ -9,10 +8,10 @@ from pycaret.classification import (
 )
 
 # ====== CONFIG ======
-CSV_PATH = "data_clean/heart_all_clean_binary.csv"  # adjust if needed
+CSV_PATH = "data_clean/heart_all_clean_binary.csv"
 TARGET   = "target"
 SESSION  = 42
-SORT_MET = "F1"   # F1 is good for medical screening
+SORT_MET = "F1"   # F1 score metric for medical screening in most cases is preferred
 
 # ====== LOAD DATA ======
 df = pd.read_csv(CSV_PATH)
@@ -20,7 +19,7 @@ df = pd.read_csv(CSV_PATH)
 if "source" in df.columns:
     df = df.drop(columns=["source"])
 
-# ====== SETUP (split + CV + preprocessing) ======
+# ====== SETUP for split dataset in the CV ======
 setup(
     data=df,
     target=TARGET,
